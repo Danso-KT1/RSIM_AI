@@ -1,0 +1,6 @@
+{
+  "name": "RSIM AI — Directorate Productivity & Knowledge Platform",
+  "description": "AI-powered writing system for letters, memos, minutes, and reports with audio transcription, customizable user templates, and Google Gemini Q&A.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
