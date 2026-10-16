@@ -23,7 +23,7 @@ if (fs.existsSync(path.join(process.cwd(), ".env.example"))) {
 }
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: "500mb" }));
 app.use(express.urlencoded({ extended: true, limit: "500mb" }));

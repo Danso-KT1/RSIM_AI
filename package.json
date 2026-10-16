@@ -7,7 +7,7 @@
     "dev": "tsx watch server.ts",
     "check-keys": "tsx scripts/check-api-keys.ts",
     "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
-    "start": "node dist/server.cjs",
+    "start": "node scripts/start-server.cjs",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"
@@ -15,11 +15,11 @@
   "dependencies": {
     "@azure/msal-browser": "^5.25.1",
     "@google/genai": "^2.4.0",
-    "@rolldown/binding-win32-x64-msvc": "^1.2.12",
     "@tailwindcss/vite": "^4.3.3",
     "@vitejs/plugin-react": "^6.1.1",
     "docx": "^9.7.1",
     "dotenv": "^17.2.3",
+    "esbuild": "^0.28.0",
     "express": "^4.21.2",
     "firebase": "^12.19.0",
     "jszip": "^3.10.2",
@@ -31,7 +31,10 @@
     "pdfjs-dist": "^6.3.289",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
+    "tsx": "^4.21.0",
+    "typescript": "^7.0.2",
     "vite": "^8.3.0",
+    "vite-plugin-pwa": "^1.3.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
@@ -41,10 +44,6 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10.4.21",
-    "esbuild": "^0.28.0",
-    "tailwindcss": "^4.3.3",
-    "tsx": "^4.21.0",
-    "typescript": "^7.0.2",
-    "vite-plugin-pwa": "^1.3.0"
+    "tailwindcss": "^4.3.3"
   }
 }
