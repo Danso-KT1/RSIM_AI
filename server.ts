@@ -23,7 +23,7 @@ if (fs.existsSync(path.join(process.cwd(), ".env.example"))) {
 }
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json({ limit: "500mb" }));
 app.use(express.urlencoded({ extended: true, limit: "500mb" }));
@@ -514,11 +514,22 @@ class AICascadeController {
       const k = process.env.DEEPSEEK_API_KEY || this.clientKeys.deepseek;
       return Boolean(k && k.trim().length > 10 && !k.includes('placeholder'));
     }
-    if (id === 'huggingface') {
-      const k = process.env.HF_TOKEN || this.clientKeys.huggingface;
-      return Boolean(k && k.trim().length > 10 && k.startsWith('hf_'));
+    if (id === ('xai' as any)) {
+      const k = process.env.XAI_API_KEY || this.clientKeys.xai;
+      return Boolean(k && k.trim().length > 10 && !k.includes('placeholder'));
     }
     return true;
+  }
+
+  public getKey(providerId: string): string | undefined {
+    if (providerId === 'xai') return process.env.XAI_API_KEY || this.clientKeys.xai;
+    if (providerId === 'groq') return process.env.GROQ_API_KEY || this.clientKeys.groq;
+    if (providerId === 'gemini') return process.env.GEMINI_API_KEY || this.clientKeys.gemini;
+    if (providerId === 'openrouter') return process.env.OPENROUTER_API_KEY || this.clientKeys.openrouter;
+    if (providerId === 'openai') return process.env.OPENAI_API_KEY || this.clientKeys.openai;
+    if (providerId === 'deepseek') return process.env.DEEPSEEK_API_KEY || this.clientKeys.deepseek;
+    if (providerId === 'huggingface') return process.env.HF_TOKEN || this.clientKeys.huggingface;
+    return this.clientKeys[providerId];
   }
 
   public recordFailover(from: AIProviderId, to: AIProviderId, reason: string, durationMs: number, prompt: string, status?: number) {
@@ -1682,15 +1693,23 @@ app.get("/api/system/status-overview", async (_req, res) => {
       category: "Audio & Speech Processing",
       route: "/api/ai/transcribe-audio-file",
       method: "POST",
-      status: process.env.XAI_API_KEY ? "OPERATIONAL (Grok Voice 2.0)" : (process.env.GROQ_API_KEY ? "OPERATIONAL (Groq Fallback)" : "KEY_REQUIRED"),
-      description: "Institutional audio transcription powered by xAI Grok Voice Transcribe 2.0 with speaker diarization",
+      status: (process.env.XAI_API_KEY || aiCascade.clientKeys.xai)
+        ? "OPERATIONAL (xAI Grok 2.0 + Groq Whisper Fallback)"
+        : ((process.env.GROQ_API_KEY || aiCascade.clientKeys.groq)
+          ? "OPERATIONAL (Groq Whisper LPU)"
+          : (process.env.GEMINI_API_KEY ? "OPERATIONAL (Gemini Fallback)" : "KEY_REQUIRED")),
+      description: "Unified multi-tier audio transcription (xAI Grok Voice 2.0 ➔ Groq Whisper LPU ➔ Gemini)",
     },
     {
       category: "Audio & Speech Processing",
       route: "/api/ai/transcribe-audio",
       method: "POST",
-      status: process.env.XAI_API_KEY ? "OPERATIONAL (Grok Voice 2.0)" : (process.env.GROQ_API_KEY ? "OPERATIONAL (Groq Fallback)" : "KEY_REQUIRED"),
-      description: "Live microphone speech-to-text powered by Grok Voice Transcribe 2.0",
+      status: (process.env.XAI_API_KEY || aiCascade.clientKeys.xai)
+        ? "OPERATIONAL (xAI Grok 2.0 + Groq Whisper Fallback)"
+        : ((process.env.GROQ_API_KEY || aiCascade.clientKeys.groq)
+          ? "OPERATIONAL (Groq Whisper LPU)"
+          : (process.env.GEMINI_API_KEY ? "OPERATIONAL (Gemini Fallback)" : "KEY_REQUIRED")),
+      description: "Live microphone speech-to-text with auto-failover across xAI, Groq Whisper, and Gemini",
     },
   ];
 
@@ -1864,12 +1883,13 @@ function groupWordsToDiarizedTranscript(words: WordItem[]): {
 async function transcribeWithGrokVoice(
   filePath: string,
   fileName: string,
-  options: GrokVoiceOptions = {}
+  options: GrokVoiceOptions = {},
+  customKey?: string
 ): Promise<TranscriptionEngineResult> {
   const startTime = Date.now();
-  const xaiKey = process.env.XAI_API_KEY?.trim();
+  const xaiKey = customKey?.trim() || aiCascade.getKey('xai')?.trim() || process.env.XAI_API_KEY?.trim();
 
-  if (!xaiKey || xaiKey.length < 10) {
+  if (!xaiKey || xaiKey.length < 10 || xaiKey.includes('placeholder') || xaiKey.includes('your-api-key')) {
     throw new Error("XAI_API_KEY is missing or invalid on the server.");
   }
 
@@ -1922,7 +1942,7 @@ async function transcribeWithGrokVoice(
       Authorization: `Bearer ${xaiKey}`,
     },
     body: form,
-    signal: AbortSignal.timeout(180000), // 3-minute institutional timeout
+    signal: AbortSignal.timeout(600000), // 10-minute timeout for large audio files (up to 500MB)
   });
 
   if (!response.ok) {
@@ -1971,6 +1991,144 @@ async function transcribeWithGrokVoice(
     success: true,
     transcript,
     modelUsed: "grok-voice-transcribe-2.0",
+    language: data.language || options.language,
+    duration: typeof data.duration === "number" ? data.duration : undefined,
+    speakersDetected,
+    durationMs,
+  };
+}
+
+// ============================================================
+// 2. ULTRA-FAST FAILOVER ENGINE: GroqCloud Whisper LPU
+// Endpoint: POST https://api.groq.com/openai/v1/audio/transcriptions
+// Model: whisper-large-v3-turbo (Groq LPU accelerated, 500+ tok/s)
+// Max file size: 25 MB
+// Free Tier: 7,200 audio seconds/day with zero credit expiration
+// ============================================================
+async function transcribeWithGroqWhisper(
+  filePath: string,
+  fileName: string,
+  options: GrokVoiceOptions = {},
+  customKey?: string
+): Promise<TranscriptionEngineResult> {
+  const startTime = Date.now();
+  const groqKey = customKey?.trim() || aiCascade.getKey('groq')?.trim() || process.env.GROQ_API_KEY?.trim();
+
+  if (!groqKey || groqKey.length < 10 || groqKey.includes('placeholder') || groqKey.includes('your-groq')) {
+    throw new Error("GROQ_API_KEY is missing or invalid on the server.");
+  }
+
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Audio file not found at: ${filePath}`);
+  }
+
+  const resolvedMimeType = resolveAudioMimeType("", options.rawMimeHint, fileName);
+  const fileBuffer = fs.readFileSync(filePath);
+  const fileSizeMb = (fileBuffer.length / (1024 * 1024)).toFixed(2);
+
+  if (fileBuffer.length > 25 * 1024 * 1024) {
+    throw new Error(
+      `Audio file is ${fileSizeMb} MB, which exceeds GroqCloud Whisper's 25 MB direct file upload limit.`
+    );
+  }
+
+  TerminalDebugger.box(
+    "⚡ [GROQCLOUD WHISPER ULTRA-FAST DISPATCH]",
+    [
+      `\x1b[1mFile Name:\x1b[0m       \x1b[36m${fileName}\x1b[0m`,
+      `\x1b[1mSize:\x1b[0m            ${fileSizeMb} MB`,
+      `\x1b[1mEndpoint:\x1b[0m        \x1b[32mhttps://api.groq.com/openai/v1/audio/transcriptions\x1b[0m`,
+      `\x1b[1mModel:\x1b[0m           whisper-large-v3-turbo (Groq LPU)`,
+      `\x1b[1mLanguage:\x1b[0m        ${options.language ? options.language : "Auto-detect"}`,
+    ],
+    "yellow"
+  );
+
+  const form = new FormData();
+  form.append("file", new Blob([fileBuffer], { type: resolvedMimeType }), fileName || "recording.mp3");
+  form.append("model", "whisper-large-v3-turbo");
+  form.append("response_format", "verbose_json");
+  form.append("temperature", "0");
+
+  if (options.language && options.language.trim()) {
+    form.append("language", options.language.trim());
+  }
+  if (options.prompt && options.prompt.trim()) {
+    form.append("prompt", options.prompt.trim().slice(0, 440));
+  }
+
+  const response = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${groqKey}`,
+    },
+    body: form,
+    signal: AbortSignal.timeout(120000), // 2-minute timeout
+  });
+
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      throw new Error(`Groq authentication failed (HTTP ${response.status}). Please verify your GROQ_API_KEY.`);
+    }
+    if (response.status === 429) {
+      throw new Error(`GroqCloud rate limit exceeded (HTTP 429).`);
+    }
+    const errText = await response.text();
+    throw new Error(`Groq Whisper API returned HTTP ${response.status}: ${errText.slice(0, 300)}`);
+  }
+
+  const data: any = await response.json();
+  let transcript = "";
+  let speakersDetected = 1;
+
+  if (Array.isArray(data.segments) && data.segments.length > 0) {
+    const lines: string[] = [];
+    let currentSpeaker = "Speaker 1";
+    let lastEnd = 0;
+
+    data.segments.forEach((seg: any, idx: number) => {
+      const text = (seg.text || "").trim();
+      if (!text) return;
+      const startSec = Math.floor(seg.start || 0);
+      const mm = String(Math.floor(startSec / 60)).padStart(2, "0");
+      const ss = String(startSec % 60).padStart(2, "0");
+      const timeTag = `[${mm}:${ss}]`;
+
+      if (options.diarize && idx > 0 && (seg.start - lastEnd > 3.0)) {
+        currentSpeaker = currentSpeaker === "Speaker 1" ? "Speaker 2" : "Speaker 1";
+        speakersDetected = Math.max(speakersDetected, 2);
+      }
+      lastEnd = seg.end || seg.start || 0;
+
+      if (options.diarize) {
+        lines.push(`${timeTag} ${currentSpeaker}: ${text}`);
+      } else {
+        lines.push(`${timeTag} ${text}`);
+      }
+    });
+
+    transcript = lines.join("\n\n");
+  }
+
+  if (!transcript && data.text) {
+    transcript = data.text.trim();
+  }
+
+  if (!transcript) {
+    transcript = "[No audible speech detected by Groq Whisper in this recording.]";
+  }
+
+  const durationMs = Date.now() - startTime;
+  TerminalDebugger.log(
+    "AUDIO",
+    `✅ GroqCloud Whisper decoded audio in ${durationMs}ms (~${transcript.split(/\s+/).length} words)`,
+    "ok"
+  );
+
+  return {
+    success: true,
+    transcript,
+    modelUsed: "groq/whisper-large-v3-turbo",
     language: data.language || options.language,
     duration: typeof data.duration === "number" ? data.duration : undefined,
     speakersDetected,
@@ -2036,8 +2194,8 @@ async function transcribeWithGemini(
       });
 
       let checkCount = 0;
-      while (uploadedFileRef.state === "PROCESSING" && checkCount < 30) {
-        await new Promise((r) => setTimeout(r, 1200));
+      while (uploadedFileRef.state === "PROCESSING" && checkCount < 120) {
+        await new Promise((r) => setTimeout(r, 1500));
         const checked = await ai.files.get({ name: uploadedFileRef.name });
         uploadedFileRef = checked;
         checkCount++;
@@ -2123,19 +2281,27 @@ async function transcribeWithGemini(
 }
 
 // ============================================================
-// UNIFIED TRANSCRIPTION DISPATCHER
-// 1. PRIMARY  → xAI Grok Voice Transcribe 2.0 (Tried first on every request)
-// 2. FALLBACK → Google Gemini Transcribe (The existing one in the project)
+// UNIFIED TRANSCRIPTION MULTI-TIER CASCADE DISPATCHER
+// 1. TIER 1 → xAI Grok Voice Transcribe 2.0 (High Precision & Diarization)
+// 2. TIER 2 → GroqCloud Whisper LPU (Ultra-Fast 500 tok/s, 7,200s/day Free)
+// 3. TIER 3 → Google Gemini Transcribe (Multimodal Safety Net)
 // ============================================================
+interface TranscriptionClientKeys {
+  xaiKey?: string;
+  groqKey?: string;
+  geminiKey?: string;
+}
+
 async function performUnifiedTranscription(
   filePath: string,
   fileName: string,
-  options: GrokVoiceOptions = {}
+  options: GrokVoiceOptions = {},
+  clientKeys: TranscriptionClientKeys = {}
 ): Promise<TranscriptionEngineResult> {
   const stats = fs.statSync(filePath);
   const fileSizeMb = (stats.size / (1024 * 1024)).toFixed(2);
 
-  TerminalDebugger.log("AUDIO", `Starting transcription – ${fileSizeMb} MB (${fileName})`, "info");
+  TerminalDebugger.log("AUDIO", `Starting unified transcription cascade – ${fileSizeMb} MB (${fileName})`, "info");
 
   // Check 500 MB maximum threshold (never show raw 413)
   if (stats.size > 500 * 1024 * 1024) {
@@ -2144,36 +2310,65 @@ async function performUnifiedTranscription(
     );
   }
 
-  // ========== 1. PRIMARY: xAI Grok Voice Transcribe 2.0 ==========
-  const xaiKey = process.env.XAI_API_KEY?.trim();
-  let grokError: Error | null = null;
+  const effectiveXaiKey = clientKeys.xaiKey?.trim() || aiCascade.getKey('xai')?.trim() || process.env.XAI_API_KEY?.trim();
+  const effectiveGroqKey = clientKeys.groqKey?.trim() || aiCascade.getKey('groq')?.trim() || process.env.GROQ_API_KEY?.trim();
 
-  if (xaiKey && xaiKey.length >= 10) {
+  const hasXai = Boolean(effectiveXaiKey && effectiveXaiKey.length >= 10 && !effectiveXaiKey.includes('placeholder') && !effectiveXaiKey.includes('your-api-key'));
+  const hasGroq = Boolean(effectiveGroqKey && effectiveGroqKey.length >= 10 && !effectiveGroqKey.includes('placeholder') && !effectiveGroqKey.includes('your-groq'));
+
+  let grokError: Error | null = null;
+  let groqError: Error | null = null;
+
+  // ========== TIER 1: xAI Grok Voice Transcribe 2.0 ==========
+  if (hasXai) {
     try {
-      TerminalDebugger.log("AUDIO", "Engaging Primary Engine: xAI Grok Voice Transcribe 2.0...", "info");
-      const result = await transcribeWithGrokVoice(filePath, fileName, options);
+      TerminalDebugger.log("AUDIO", "Engaging Tier 1 Engine: xAI Grok Voice Transcribe 2.0...", "info");
+      const result = await transcribeWithGrokVoice(filePath, fileName, options, effectiveXaiKey);
       TerminalDebugger.log("AUDIO", `✅ Grok Voice Transcribe 2.0 succeeded (${fileSizeMb} MB)`, "ok");
       return result;
     } catch (err: any) {
       grokError = err;
       TerminalDebugger.log(
         "AUDIO",
-        `Grok Voice Transcribe 2.0 failed: ${err?.message || err}. Automatically falling back to Google Gemini...`,
+        `Grok Voice Transcribe 2.0 failed: ${err?.message || err}. Auto-failing over to Tier 2: GroqCloud Whisper...`,
         "warn"
       );
     }
   } else {
-    grokError = new Error("XAI_API_KEY is missing or invalid on the server.");
+    grokError = new Error("xAI API key not configured or expired.");
     TerminalDebugger.log(
       "AUDIO",
-      "XAI_API_KEY not configured or invalid. Automatically falling back to Google Gemini...",
-      "warn"
+      "xAI API key not provided or configured. Cascading directly to Tier 2: GroqCloud Whisper...",
+      "info"
     );
   }
 
-  // ========== 2. FALLBACK: Google Gemini Transcribe ==========
+  // ========== TIER 2: GroqCloud Ultra-Fast Whisper (Free Tier 7,200s/day) ==========
+  const canUseGroq = hasGroq && stats.size <= 25 * 1024 * 1024;
+  if (canUseGroq) {
+    try {
+      TerminalDebugger.log("AUDIO", "Engaging Tier 2 Failover Engine: GroqCloud Whisper LPU...", "info");
+      const groqResult = await transcribeWithGroqWhisper(filePath, fileName, options, effectiveGroqKey);
+      TerminalDebugger.log("AUDIO", `✅ GroqCloud Whisper fallback succeeded (${fileSizeMb} MB in ${groqResult.durationMs}ms)`, "ok");
+      return groqResult;
+    } catch (err: any) {
+      groqError = err;
+      TerminalDebugger.log(
+        "AUDIO",
+        `GroqCloud Whisper fallback failed: ${err?.message || err}. Auto-failing over to Tier 3: Google Gemini...`,
+        "warn"
+      );
+    }
+  } else if (hasGroq && stats.size > 25 * 1024 * 1024) {
+    groqError = new Error(`Audio file (${fileSizeMb} MB) exceeds Groq's 25 MB direct upload limit.`);
+    TerminalDebugger.log("AUDIO", "Audio file > 25 MB, cascading directly to Google Gemini File API...", "info");
+  } else {
+    groqError = new Error("Groq API key not configured.");
+  }
+
+  // ========== TIER 3: Google Gemini Transcribe ==========
   try {
-    TerminalDebugger.log("AUDIO", "Engaging Fallback Engine: Google Gemini Transcribe...", "warn");
+    TerminalDebugger.log("AUDIO", "Engaging Tier 3 Failover Engine: Google Gemini Transcribe...", "warn");
     const geminiResult = await transcribeWithGemini(filePath, fileName, options);
     TerminalDebugger.log("AUDIO", `✅ Google Gemini Transcribe fallback succeeded (${fileSizeMb} MB)`, "ok");
     return geminiResult;
@@ -2184,17 +2379,20 @@ async function performUnifiedTranscription(
       "error"
     );
 
-    // Sanitize error messages: never show raw 413 or internal errors
     const cleanGrokErr = grokError?.message?.includes("413")
       ? `Audio file is ${fileSizeMb} MB (exceeds direct processing limit)`
-      : grokError?.message || "Primary Grok engine failed";
+      : grokError?.message?.slice(0, 150) || "Primary Grok engine failed";
+
+    const cleanGroqErr = groqError?.message?.slice(0, 150) || "Groq Whisper engine failed";
 
     const cleanGeminiErr = geminiErr?.message?.includes("413")
       ? "Audio payload too large"
-      : geminiErr?.message || "Gemini engine failed";
+      : geminiErr?.message?.slice(0, 150) || "Gemini engine failed";
 
     throw new Error(
-      `Audio transcription failed on all engines. Primary Grok: ${cleanGrokErr}. Fallback Gemini: ${cleanGeminiErr}. Please ensure valid API keys or provide a smaller audio recording.`
+      `Audio transcription failed across all cascade tiers. ` +
+      `[xAI Grok: ${cleanGrokErr}] | [Groq Whisper: ${cleanGroqErr}] | [Gemini: ${cleanGeminiErr}]. ` +
+      `Please configure a free Groq API key (console.groq.com) or xAI key (console.x.ai) in the AI Cascade Matrix.`
     );
   }
 }
@@ -2212,7 +2410,7 @@ app.post("/api/ai/transcribe-audio-file", audioUpload.single("audio"), async (re
       });
     }
 
-    const { prompt, fileName, language, diarize, keyterms } = req.body;
+    const { prompt, fileName, language, diarize, keyterms, xaiKey, groqKey, geminiKey } = req.body;
     const finalFileName = fileName || file.originalname || "Uploaded_Audio.m4a";
 
     let parsedKeyterms: string[] | undefined = undefined;
@@ -2226,13 +2424,26 @@ app.post("/api/ai/transcribe-audio-file", audioUpload.single("audio"), async (re
       }
     }
 
-    const result = await performUnifiedTranscription(file.path, finalFileName, {
-      rawMimeHint: file.mimetype,
-      prompt,
-      language: language?.trim() || undefined,
-      diarize: diarize !== false && diarize !== "false",
-      keyterms: parsedKeyterms,
-    });
+    const xaiHeaderKey = (req.headers["x-xai-key"] as string) || xaiKey;
+    const groqHeaderKey = (req.headers["x-groq-key"] as string) || groqKey;
+    const geminiHeaderKey = (req.headers["x-gemini-key"] as string) || geminiKey;
+
+    const result = await performUnifiedTranscription(
+      file.path,
+      finalFileName,
+      {
+        rawMimeHint: file.mimetype,
+        prompt,
+        language: language?.trim() || undefined,
+        diarize: diarize !== false && diarize !== "false",
+        keyterms: parsedKeyterms,
+      },
+      {
+        xaiKey: xaiHeaderKey,
+        groqKey: groqHeaderKey,
+        geminiKey: geminiHeaderKey,
+      }
+    );
 
     return res.json({
       success: true,
@@ -2264,7 +2475,7 @@ app.post("/api/ai/transcribe-audio-file", audioUpload.single("audio"), async (re
 app.post("/api/ai/transcribe-audio", async (req, res) => {
   let tempFilePath: string | null = null;
   try {
-    const { base64Audio, mimeType = "audio/webm", prompt, fileName, language, diarize, keyterms } = req.body;
+    const { base64Audio, mimeType = "audio/webm", prompt, fileName, language, diarize, keyterms, xaiKey, groqKey, geminiKey } = req.body;
     if (!base64Audio) {
       return res.status(400).json({
         success: false,
@@ -2322,13 +2533,26 @@ app.post("/api/ai/transcribe-audio", async (req, res) => {
       }
     }
 
-    const result = await performUnifiedTranscription(tempFilePath, fileName || "Live_Recording", {
-      rawMimeHint: resolvedMime,
-      prompt,
-      language: language?.trim() || undefined,
-      diarize: diarize !== false && diarize !== "false",
-      keyterms: parsedKeyterms,
-    });
+    const xaiHeaderKey = (req.headers["x-xai-key"] as string) || xaiKey;
+    const groqHeaderKey = (req.headers["x-groq-key"] as string) || groqKey;
+    const geminiHeaderKey = (req.headers["x-gemini-key"] as string) || geminiKey;
+
+    const result = await performUnifiedTranscription(
+      tempFilePath,
+      fileName || "Live_Recording",
+      {
+        rawMimeHint: resolvedMime,
+        prompt,
+        language: language?.trim() || undefined,
+        diarize: diarize !== false && diarize !== "false",
+        keyterms: parsedKeyterms,
+      },
+      {
+        xaiKey: xaiHeaderKey,
+        groqKey: groqHeaderKey,
+        geminiKey: geminiHeaderKey,
+      }
+    );
 
     return res.json({
       success: true,

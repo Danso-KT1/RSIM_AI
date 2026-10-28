@@ -225,6 +225,36 @@ export const aiService = {
     }
   },
 
+  // Synchronize all stored custom client keys from localStorage to backend
+  async syncCustomKeysToServer(): Promise<any> {
+    try {
+      const groq = localStorage.getItem('rsim_custom_groq_key')?.trim() || '';
+      const xai = localStorage.getItem('rsim_custom_xai_key')?.trim() || '';
+      const gemini = localStorage.getItem('rsim_custom_gemini_key')?.trim() || '';
+      const openrouter = localStorage.getItem('rsim_custom_openrouter_key')?.trim() || '';
+      const deepseek = localStorage.getItem('rsim_custom_deepseek_key')?.trim() || '';
+      const openai = localStorage.getItem('rsim_custom_openai_key')?.trim() || '';
+      const huggingface = localStorage.getItem('rsim_custom_huggingface_key')?.trim() || '';
+
+      const clientKeys: Record<string, string> = {};
+      if (groq) clientKeys.groq = groq;
+      if (xai) clientKeys.xai = xai;
+      if (gemini) clientKeys.gemini = gemini;
+      if (openrouter) clientKeys.openrouter = openrouter;
+      if (deepseek) clientKeys.deepseek = deepseek;
+      if (openai) clientKeys.openai = openai;
+      if (huggingface) clientKeys.huggingface = huggingface;
+
+      if (Object.keys(clientKeys).length > 0) {
+        return await this.updateCascadeConfig(undefined, clientKeys);
+      }
+      return null;
+    } catch (err) {
+      console.warn('Silent key sync failed:', err);
+      return null;
+    }
+  },
+
   // Live test an individual AI provider or auto-cascade
   async testCascadeProvider(providerId?: string, testPrompt?: string, preferredModel?: string): Promise<any> {
     try {
@@ -711,6 +741,10 @@ export const aiService = {
   }> {
     try {
       const opts = typeof options === 'string' ? { prompt: options } : options || {};
+      const groqKey = localStorage.getItem('rsim_custom_groq_key')?.trim();
+      const xaiKey = localStorage.getItem('rsim_custom_xai_key')?.trim();
+      const geminiKey = localStorage.getItem('rsim_custom_gemini_key')?.trim();
+
       const res = await api.post('/api/ai/transcribe-audio', {
         base64Audio,
         mimeType,
@@ -719,13 +753,16 @@ export const aiService = {
         diarize: opts.diarize !== false,
         keyterms: opts.keyterms,
         fileName,
+        groqKey,
+        xaiKey,
+        geminiKey,
       });
 
       if (res.ok && res.data?.transcript) {
         return {
           transcript: res.data.transcript,
           success: true,
-          modelUsed: res.data.modelUsed || 'grok-voice-transcribe-2.0',
+          modelUsed: res.data.modelUsed || 'groq/whisper-large-v3-turbo',
           speakersDetected: res.data.speakersDetected,
           duration: res.data.duration,
         };
@@ -779,13 +816,20 @@ export const aiService = {
         formData.append('keyterms', JSON.stringify(opts.keyterms));
       }
 
+      const groqKey = localStorage.getItem('rsim_custom_groq_key')?.trim();
+      const xaiKey = localStorage.getItem('rsim_custom_xai_key')?.trim();
+      const geminiKey = localStorage.getItem('rsim_custom_gemini_key')?.trim();
+      if (groqKey) formData.append('groqKey', groqKey);
+      if (xaiKey) formData.append('xaiKey', xaiKey);
+      if (geminiKey) formData.append('geminiKey', geminiKey);
+
       const res = await api.upload('/api/ai/transcribe-audio-file', formData, onProgress);
 
       if (res.ok && res.data?.transcript) {
         return {
           transcript: res.data.transcript,
           success: true,
-          modelUsed: res.data.modelUsed || 'grok-voice-transcribe-2.0',
+          modelUsed: res.data.modelUsed || 'groq/whisper-large-v3-turbo',
           speakersDetected: res.data.speakersDetected,
           duration: res.data.duration,
         };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, Suspense, lazy } from 'react';
 import { storage } from './services/storage';
+import { aiService } from './services/aiService';
 import {
   UserProfile,
   Meeting,
@@ -87,6 +88,11 @@ export default function App() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // ── Sync client custom API keys (Groq, xAI, Gemini, etc.) to server on boot ──
+  useEffect(() => {
+    aiService.syncCustomKeysToServer();
   }, []);
 
   // ── Navigation callbacks ───────────────────────────────────────────────────

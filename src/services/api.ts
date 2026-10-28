@@ -125,6 +125,23 @@ export const api = {
     }
     const sanitizedRequest = sanitizePayload(parsedBody);
 
+    // Attach client custom provider keys (Groq, xAI, Gemini) for audio and cascade endpoints
+    const customHeaders: Record<string, string> = {
+      ...(options.headers as any || {}),
+    };
+    if (url.includes('transcribe-audio') || url.includes('/api/ai/')) {
+      const groqKey = localStorage.getItem('rsim_custom_groq_key')?.trim();
+      const xaiKey = localStorage.getItem('rsim_custom_xai_key')?.trim();
+      const geminiKey = localStorage.getItem('rsim_custom_gemini_key')?.trim();
+      if (groqKey && !customHeaders['x-groq-key']) customHeaders['x-groq-key'] = groqKey;
+      if (xaiKey && !customHeaders['x-xai-key']) customHeaders['x-xai-key'] = xaiKey;
+      if (geminiKey && !customHeaders['x-gemini-key']) customHeaders['x-gemini-key'] = geminiKey;
+    }
+    const finalOptions: RequestInit = {
+      ...options,
+      headers: customHeaders,
+    };
+
     // Console Request Group (dev-only — no performance cost in production)
     if (import.meta.env.DEV) {
       console.groupCollapsed(
@@ -136,7 +153,7 @@ export const api = {
       );
       console.log('Endpoint URL:', url);
       console.log('Method:', method);
-      console.log('Headers:', options.headers || { 'Content-Type': 'application/json' });
+      console.log('Headers:', finalOptions.headers || { 'Content-Type': 'application/json' });
       if (sanitizedRequest) {
         console.log('Request Payload:', sanitizedRequest);
       }
@@ -144,7 +161,7 @@ export const api = {
     }
 
     try {
-      const response = await fetch(url, options);
+      const response = await fetch(url, finalOptions);
       const durationMs = Math.round(performance.now() - startTime);
 
       let responseData: any = null;
@@ -414,6 +431,14 @@ export const api = {
           ok: false,
         });
       };
+
+      // Attach client custom provider keys to binary multipart upload
+      const groqKey = localStorage.getItem('rsim_custom_groq_key')?.trim();
+      const xaiKey = localStorage.getItem('rsim_custom_xai_key')?.trim();
+      const geminiKey = localStorage.getItem('rsim_custom_gemini_key')?.trim();
+      if (groqKey) xhr.setRequestHeader('x-groq-key', groqKey);
+      if (xaiKey) xhr.setRequestHeader('x-xai-key', xaiKey);
+      if (geminiKey) xhr.setRequestHeader('x-gemini-key', geminiKey);
 
       xhr.send(formData);
     });

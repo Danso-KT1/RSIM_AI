@@ -45,6 +45,7 @@ export const AICascadeMatrixModal: React.FC<AICascadeMatrixModalProps> = ({
   const [openRouterKey, setOpenRouterKey] = useState(() => localStorage.getItem('rsim_custom_openrouter_key') || '');
   const [geminiKey, setGeminiKey] = useState(() => localStorage.getItem('rsim_custom_gemini_key') || '');
   const [groqKey, setGroqKey] = useState(() => localStorage.getItem('rsim_custom_groq_key') || '');
+  const [xaiKey, setXaiKey] = useState(() => localStorage.getItem('rsim_custom_xai_key') || '');
   const [deepSeekKey, setDeepSeekKey] = useState(() => localStorage.getItem('rsim_custom_deepseek_key') || '');
   const [openAiKey, setOpenAiKey] = useState(() => localStorage.getItem('rsim_custom_openai_key') || '');
   const [hfKey, setHfKey] = useState(() => localStorage.getItem('rsim_custom_huggingface_key') || '');
@@ -133,6 +134,7 @@ export const AICascadeMatrixModal: React.FC<AICascadeMatrixModalProps> = ({
     localStorage.setItem('rsim_custom_openrouter_key', openRouterKey.trim());
     localStorage.setItem('rsim_custom_gemini_key', geminiKey.trim());
     localStorage.setItem('rsim_custom_groq_key', groqKey.trim());
+    localStorage.setItem('rsim_custom_xai_key', xaiKey.trim());
     localStorage.setItem('rsim_custom_deepseek_key', deepSeekKey.trim());
     localStorage.setItem('rsim_custom_openai_key', openAiKey.trim());
     localStorage.setItem('rsim_custom_huggingface_key', hfKey.trim());
@@ -141,6 +143,7 @@ export const AICascadeMatrixModal: React.FC<AICascadeMatrixModalProps> = ({
       openrouter: openRouterKey.trim(),
       gemini: geminiKey.trim(),
       groq: groqKey.trim(),
+      xai: xaiKey.trim(),
       deepseek: deepSeekKey.trim(),
       openai: openAiKey.trim(),
       huggingface: hfKey.trim(),
@@ -541,7 +544,7 @@ export const AICascadeMatrixModal: React.FC<AICascadeMatrixModalProps> = ({
 
                 <div>
                   <label className="font-semibold text-slate-700 block mb-1">
-                    Groq Key (LPU & Whisper):
+                    GroqCloud Key (Whisper & LPU):
                   </label>
                   <input
                     type="password"
@@ -551,7 +554,23 @@ export const AICascadeMatrixModal: React.FC<AICascadeMatrixModalProps> = ({
                     className="w-full rounded-xl border border-slate-300 p-2 text-slate-800 bg-white font-mono text-[11px]"
                   />
                   <span className="text-[10px] text-slate-400 mt-0.5 block">
-                    Llama 3.3 (500 t/s) & Whisper Audio
+                    Free Whisper STT (7,200s/day) + Llama 3.3
+                  </span>
+                </div>
+
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">
+                    xAI Key (Grok Voice 2.0 STT):
+                  </label>
+                  <input
+                    type="password"
+                    value={xaiKey}
+                    onChange={(e) => setXaiKey(e.target.value)}
+                    placeholder="xai-..."
+                    className="w-full rounded-xl border border-slate-300 p-2 text-slate-800 bg-white font-mono text-[11px]"
+                  />
+                  <span className="text-[10px] text-slate-400 mt-0.5 block">
+                    xAI STT with Speaker Diarization (console.x.ai)
                   </span>
                 </div>
 

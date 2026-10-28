@@ -25,6 +25,7 @@ import {
   RefreshCw,
   Sliders,
   FileCheck,
+  Zap,
 } from 'lucide-react';
 import { Meeting, DocumentItem } from '../../types';
 import { storage } from '../../services/storage';
@@ -600,21 +601,28 @@ export const AudioTranscriptionStudio: React.FC<AudioTranscriptionStudioProps> =
             <h1 className="text-xl font-bold tracking-tight text-slate-900">
               Audio Transcription Studio
             </h1>
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
-              <Sparkles className="h-3 w-3 text-emerald-600" />
-              xAI Grok Voice 2.0
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
+              <Zap className="h-3 w-3 text-amber-500" />
+              Auto-Cascade: xAI Grok ➔ Groq Whisper ➔ Gemini
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Ultra-fast executive speech-to-text with multi-speaker diarization, timestamps, and direct document generation.
+            Multi-tier executive speech-to-text with GroqCloud ultra-fast fallback, speaker diarization, and official documentation handoff.
           </p>
         </div>
 
         {modelUsed && (
           <div className="flex items-center gap-2 text-xs text-slate-600 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-2xs">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            <span className={`h-2 w-2 rounded-full ${modelUsed.includes('whisper') ? 'bg-amber-500' : modelUsed.includes('grok') ? 'bg-emerald-500' : 'bg-blue-500'}`} />
             <span className="text-slate-500">Engine:</span>
-            <span className="font-semibold text-slate-800">{modelUsed}</span>
+            <span className="font-semibold text-slate-800">
+              {modelUsed.includes('whisper') ? '⚡ GroqCloud Whisper LPU' : modelUsed.includes('grok') ? '🎙️ xAI Grok Voice 2.0' : modelUsed}
+            </span>
+            {modelUsed.includes('whisper') && (
+              <span className="rounded bg-amber-100 text-amber-800 px-1.5 py-0.5 text-[10px] font-bold">
+                Auto-Failover
+              </span>
+            )}
             {speakersDetected > 0 && (
               <>
                 <span className="text-slate-300">|</span>
@@ -871,9 +879,16 @@ export const AudioTranscriptionStudio: React.FC<AudioTranscriptionStudioProps> =
 
             {/* Error Message Alert */}
             {errorMessage && (
-              <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 flex items-start gap-2.5 text-xs text-rose-800">
-                <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
-                <span className="leading-relaxed">{errorMessage}</span>
+              <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 flex flex-col gap-2 text-xs text-rose-800">
+                <div className="flex items-start gap-2.5">
+                  <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+                  <span className="leading-relaxed flex-1">{errorMessage}</span>
+                </div>
+                {(errorMessage.toLowerCase().includes('key') || errorMessage.toLowerCase().includes('api') || errorMessage.toLowerCase().includes('fail')) && (
+                  <div className="pt-1 text-[11px] text-rose-700 bg-rose-100/60 rounded-lg p-2 font-medium">
+                    💡 <strong>Quick Fix:</strong> Click the AI Matrix badge in the top navigation bar to configure a free <strong>GroqCloud key</strong> (free 7,200s/day at <span className="underline">console.groq.com</span>) or refresh your <strong>xAI key</strong>.
+                  </div>
+                )}
               </div>
             )}
 
@@ -888,7 +903,7 @@ export const AudioTranscriptionStudio: React.FC<AudioTranscriptionStudioProps> =
                 {isTranscribing ? (
                   <>
                     <RefreshCw className="h-4 w-4 animate-spin text-white" />
-                    <span>Transcribing with Grok Voice... ({transcribeElapsedSec}s)</span>
+                    <span>Transcribing via Auto-Cascade... ({transcribeElapsedSec}s)</span>
                   </>
                 ) : (
                   <>
@@ -904,7 +919,7 @@ export const AudioTranscriptionStudio: React.FC<AudioTranscriptionStudioProps> =
                     <div className="h-full bg-emerald-500 rounded-full animate-pulse w-full" />
                   </div>
                   <p className="text-[11px] text-center text-slate-500 font-medium">
-                    Decoding audio bitstream with xAI Grok Voice Transcribe 2.0...
+                    Processing speech through AI Cascade (xAI Grok ➔ Groq Whisper ➔ Gemini)...
                   </p>
                 </div>
               )}
