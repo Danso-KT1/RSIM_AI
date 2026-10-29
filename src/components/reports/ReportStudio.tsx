@@ -704,7 +704,7 @@ export const ReportStudio: React.FC<ReportStudioProps> = ({ initialContent, onDo
           referenceNumber={extractedMeta.referenceNumber || 'RSIM/REP/2026/03'}
           date={new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
           author={storage.getUser().name || 'Lead Planning Officer'}
-          department="MINISTRY OF COMMUNICATIONS & DIGITALISATION"
+          department="MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS"
           type="Meeting Report"
           formatting={activeTemplate?.learnedKnowledge?.formatting || (activeTemplate?.templateSpec ? { font: activeTemplate.templateSpec.detectedFont, fontSize: activeTemplate.templateSpec.detectedFontSize } : undefined)}
           onContentChange={(newContent) => setGeneratedReport(newContent)}

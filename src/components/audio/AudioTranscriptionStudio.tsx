@@ -515,7 +515,7 @@ export const AudioTranscriptionStudio: React.FC<AudioTranscriptionStudioProps> =
       date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
       type: 'Meeting Transcript',
       author: 'RSIM AI Directorate Workstation',
-      department: 'Ministry of Communications and Digitalisation',
+      department: 'Ministry of Communications, Digital Technology and Innovations (MoCDTI)',
     });
   };
 
@@ -530,7 +530,7 @@ export const AudioTranscriptionStudio: React.FC<AudioTranscriptionStudioProps> =
       date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
       type: 'Meeting Transcript',
       author: 'RSIM AI Directorate Workstation',
-      department: 'Ministry of Communications and Digitalisation',
+      department: 'Ministry of Communications, Digital Technology and Innovations (MoCDTI)',
     });
   };
 

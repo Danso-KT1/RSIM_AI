@@ -26,14 +26,14 @@ export const SEED_GLOSSARY: GlossaryTerm[] = [
     definition: 'The Directorate responsible for cross-sector data management, policy research, statistical analysis, and IT documentation within the Ministry.',
     preferredSpelling: 'RSIM Directorate',
     category: 'Directorate Structure',
-    relatedTerms: ['MoCD', 'Data Governance', 'Civil Service'],
+    relatedTerms: ['MoCDTI', 'Data Governance', 'Civil Service'],
   },
   {
     id: 'glo_02',
-    acronym: 'MoCD',
-    fullName: 'Ministry of Communications and Digitalisation',
-    definition: 'The central government ministry overseeing telecommunications, digital public goods, postal services, and national cybersecurity infrastructure.',
-    preferredSpelling: 'Ministry of Communications & Digitalisation',
+    acronym: 'MoCDTI',
+    fullName: 'Ministry of Communications, Digital Technology and Innovations',
+    definition: 'The central government ministry overseeing telecommunications, digital public goods, postal services, national cybersecurity infrastructure, and technology innovations.',
+    preferredSpelling: 'Ministry of Communications, Digital Technology and Innovations (MoCDTI)',
     category: 'Government Ministry',
     relatedTerms: ['RSIM', 'NCA', 'NITA', 'GIFEC'],
   },
@@ -44,7 +44,7 @@ export const SEED_GLOSSARY: GlossaryTerm[] = [
     definition: 'Statutory regulatory body overseeing spectrum allocation, telecom licensing, and quality of service benchmarks.',
     preferredSpelling: 'National Communications Authority',
     category: 'Regulator',
-    relatedTerms: ['Telecom', 'Spectrum', 'MoCD'],
+    relatedTerms: ['Telecom', 'Spectrum', 'MoCDTI'],
   },
   {
     id: 'glo_04',
@@ -71,7 +71,7 @@ export const SEED_KNOWLEDGE: KnowledgeItem[] = [
     id: 'kb_01',
     title: 'RSIM Directorate Statutory Mandate & Core Functions',
     category: 'Directorate Information',
-    content: `The Directorate of Research, Statistics & Information Management (RSIM) operates under the Civil Service Law and statutory administrative instruments as the central empirical engine of the Ministry of Communications and Digitalisation.
+    content: `The Directorate of Research, Statistics & Information Management (RSIM) operates under the Civil Service Law and statutory administrative instruments as the central empirical engine of the Ministry of Communications, Digital Technology and Innovations (MoCDTI).
 
 CORE MANDATE & FUNCTIONS:
 1. Evidence-Based Policymaking: Formulate, coordinate, and review sector policies based on empirical research and national statistical indicators.
@@ -79,7 +79,7 @@ CORE MANDATE & FUNCTIONS:
 3. Institutional Quality Assurance: Ensure that all official communications, executive memoranda, cabinet submissions, and technical reports strictly comply with Civil Service drafting protocols.
 4. Digital Transformation & Documentation: Oversee institutional knowledge archiving, digital record-keeping, and the integration of artificial intelligence tools for public service efficiency.`,
     summary: 'Statutory authority, policy functions, and data governance role of the RSIM Directorate.',
-    source: 'Civil Service Governance Framework & MoCD Operational Manual',
+    source: 'Civil Service Governance Framework & MoCDTI Operational Manual',
     owner: 'Director, RSIM',
     version: '2026.1',
     accessLevel: 'Directorate Only',
@@ -99,7 +99,7 @@ CORE MANDATE & FUNCTIONS:
    - THROUGH: Supervising Director (if routing via intermediate authority)
    - FROM: Director, RSIM Directorate
    - DATE: Official date format (e.g., 6th October 2026)
-   - REF. NO: MoCD/RSIM/MEMO/[YEAR]/[SEQUENTIAL_NUM] (e.g., MoCD/RSIM/MEMO/2026/042)
+   - REF. NO: MoCDTI/RSIM/MEMO/[YEAR]/[SEQUENTIAL_NUM] (e.g., MoCDTI/RSIM/MEMO/2026/042)
    - SUBJECT: Written in uppercase, bold, stating precise directive sought.
 
 2. STANDARD SECTIONS:
@@ -126,13 +126,13 @@ CORE MANDATE & FUNCTIONS:
 
 1. LETTERHEAD & IDENTIFIERS:
    - Must bear the official Ministry coat of arms / header and Directorate sub-header.
-   - Reference format: MoCD/RSIM/EXT/[YEAR]/[ID]
+   - Reference format: MoCDTI/RSIM/EXT/[YEAR]/[ID]
    - Full recipient address with official designation preceding institution name.
 
 2. SALUTATION CONVENTIONS:
    - Ministers/Ambassadors: "Honourable Minister,", "Your Excellency,"
    - Chief Directors / Managing Directors: "Dear Sir/Madam," or "Dear [Title] [Last Name],"
-   - Formal Opening: "I have the honour to write on behalf of the Ministry of Communications and Digitalisation..."
+   - Formal Opening: "I have the honour to write on behalf of the Ministry of Communications, Digital Technology and Innovations (MoCDTI)..."
 
 3. CLOSING & SIGNATURE:
    - Formal sign-off: "Yours faithfully," (when addressing Dear Sir/Madam) or "Yours sincerely," (when named).
@@ -160,7 +160,7 @@ KEY PERFORMANCE INDICATORS:
 - Civil Service Automation: 100% electronic paperless document processing across ministerial directorates.
 - Open Data Standards: Institutional publication of anonymized public research datasets in machine-readable formats.`,
     summary: 'Strategic national digital policies, connectivity targets, and civil service modernization KPIs.',
-    source: 'MoCD Strategic Policy Document (2025–2028)',
+    source: 'MoCDTI Strategic Policy Document (2025–2028)',
     owner: 'Policy Planning Division',
     version: '2025.3',
     accessLevel: 'Public',

@@ -734,7 +734,7 @@ export const AIAssistantView: React.FC<AIAssistantViewProps> = ({
                             exportToDocx({
                               title: 'RSIM AI Executive Response',
                               content: msg.content,
-                              department: 'MINISTRY OF COMMUNICATIONS & DIGITALISATION',
+                              department: 'MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS',
                               referenceNumber: `RSIM/AI/${new Date().getFullYear()}`,
                               date: new Date().toLocaleDateString(),
                             })

@@ -445,7 +445,7 @@ export const MemoStudio: React.FC<MemoStudioProps> = ({ initialContent, onDocume
           referenceNumber={extractedMeta.referenceNumber || 'RSIM/MEMO/2026/018'}
           date={new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
           author={storage.getUser().name || 'Lead Planning Officer'}
-          department="MINISTRY OF COMMUNICATIONS & DIGITALISATION"
+          department="MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS"
           type="Internal Memo"
           formatting={activeTemplate?.learnedKnowledge?.formatting || (activeTemplate?.templateSpec ? { font: activeTemplate.templateSpec.detectedFont, fontSize: activeTemplate.templateSpec.detectedFontSize } : undefined)}
           onContentChange={(newContent) => setGeneratedMemo(newContent)}

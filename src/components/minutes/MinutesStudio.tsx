@@ -715,7 +715,7 @@ export const MinutesStudio: React.FC<MinutesStudioProps> = ({
           referenceNumber={extractedMeta.referenceNumber || 'RSIM/MIN/2026/05'}
           date={new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
           author={storage.getUser().name || 'Secretariat, RSIM'}
-          department="MINISTRY OF COMMUNICATIONS & DIGITALISATION"
+          department="MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS"
           type="Meeting Minutes"
           formatting={activeTemplate?.learnedKnowledge?.formatting || (activeTemplate?.templateSpec ? { font: activeTemplate.templateSpec.detectedFont, fontSize: activeTemplate.templateSpec.detectedFontSize } : undefined)}
           onContentChange={(newContent) => setGeneratedMinutes(newContent)}

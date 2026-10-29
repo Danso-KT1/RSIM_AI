@@ -865,7 +865,7 @@ Synthesize all specific facts, dates, attendees, metrics, discussion points, spe
       icon: '🏛️',
     },
     {
-      title: 'RSIM meaning at the Ministry of Communications',
+      title: 'RSIM meaning at the Ministry of Communications, Digital Technology and Innovations (MoCDTI)',
       desc: 'Official statutory mandate, 4 divisions, and sector agency oversight',
       icon: '🔍',
     },
@@ -1019,7 +1019,7 @@ Synthesize all specific facts, dates, attendees, metrics, discussion points, spe
             <span>RSIM Directorate Overview</span>
           </div>
           <div
-            onClick={() => handleAskQuestion('RSIM meaning at the Ministry of Communications')}
+            onClick={() => handleAskQuestion('RSIM meaning at the Ministry of Communications, Digital Technology and Innovations (MoCDTI)')}
             className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer transition-colors"
           >
             <Search className="h-3.5 w-3.5 text-blue-500" />

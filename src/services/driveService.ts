@@ -453,13 +453,13 @@ export function getDemoFileSampleContent(fileId: string, fileName: string): stri
   // 1. Stakeholder Engagement Report (Google Drive Template)
   if (lower.includes('stakeholder') || lower.includes('harmonisation') || lower.includes('data harmonis')) {
     return `# REPUBLIC OF GHANA
-MINISTRY OF COMMUNICATIONS AND DIGITALISATION
+MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS
 DIRECTORATE OF RESEARCH, STATISTICS AND INFORMATION MANAGEMENT (RSIM)
 
 STAKEHOLDER ENGAGEMENT REPORT: THE DATA HARMONISATION MEETING 2026
 
 1.0 EXECUTIVE SUMMARY & ENGAGEMENT OVERVIEW
-The Ministry of Communications and Digitalisation, through the Directorate of Research, Statistics and Information Management (RSIM), convened a high-level Stakeholder Engagement Session on National Data Harmonisation and Inter-Agency Interoperability. The overarching objective of the session was to foster institutional synergy, evaluate ongoing data integration frameworks, address systemic data silos across public regulatory bodies, and establish enforceable data exchange protocols across the sector.
+The Ministry of Communications, Digital Technology and Innovations (MoCDTI), through the Directorate of Research, Statistics and Information Management (RSIM), convened a high-level Stakeholder Engagement Session on National Data Harmonisation and Inter-Agency Interoperability. The overarching objective of the session was to foster institutional synergy, evaluate ongoing data integration frameworks, address systemic data silos across public regulatory bodies, and establish enforceable data exchange protocols across the sector.
 
 2.0 THEMATIC DELIBERATIONS & REGULATORY POSITIONS
 2.1 Overview of Strategic Interventions and Agency Presentations
@@ -476,11 +476,11 @@ Following consultative deliberations, stakeholders unanimously resolved on the f
 
 ____________________________________________
 Director, RSIM Directorate
-Ministry of Communications and Digitalisation`;
+Ministry of Communications, Digital Technology and Innovations (MoCDTI)`;
   }
   if (lower.includes('minute')) {
     return `# REPUBLIC OF GHANA
-MINISTRY OF COMMUNICATIONS AND DIGITALISATION
+MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS
 DIRECTORATE OF RESEARCH, STATISTICS AND INFORMATION MANAGEMENT (RSIM)
 
 ## OFFICIAL MINUTES OF PROCEEDINGS
@@ -527,12 +527,12 @@ There being no other business, the meeting was adjourned at 12:45 PM following a
 
   if (lower.includes('report')) {
     return `# REPUBLIC OF GHANA
-MINISTRY OF COMMUNICATIONS AND DIGITALISATION
+MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS
 DIRECTORATE OF RESEARCH, STATISTICS & INFORMATION MANAGEMENT (RSIM)
 
 ## INSTITUTIONAL PERFORMANCE & POLICY EVALUATION REPORT
 
-**Document Ref:** MoCD/RSIM/REP/${new Date().getFullYear()}/04
+**Document Ref:** MoCDTI/RSIM/REP/${new Date().getFullYear()}/04
 **Reporting Cycle:** Annual Directorate Performance Review
 **Authoring Directorate:** Directorate of Research, Statistics & Information Management (RSIM)
 
@@ -563,12 +563,12 @@ Identified operational constraints include bandwidth variability in regional off
 2. Direct all agencies to synchronize records with the central digital vault.
 3. Authorize phase two of the automated workflow integration.
 
-**Submitted to:** The Chief Director, Ministry of Communications and Digitalisation`;
+**Submitted to:** The Chief Director, Ministry of Communications, Digital Technology and Innovations (MoCDTI)`;
   }
 
   if (lower.includes('memo') || lower.includes('memorandum')) {
     return `# REPUBLIC OF GHANA
-MINISTRY OF COMMUNICATIONS AND DIGITALISATION
+MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS
 
 ## INTERNAL MEMORANDUM
 
@@ -577,7 +577,7 @@ MINISTRY OF COMMUNICATIONS AND DIGITALISATION
 **FROM:** Assistant Director, Research & Statistics
 **DATE:** ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
 **SUBJECT:** SUBMISSION OF TECHNICAL WORKING GROUP OUTCOMES AND RECOMMENDATIONS
-**REF NO:** MoCD/RSIM/MEMO/${new Date().getFullYear()}/012
+**REF NO:** MoCDTI/RSIM/MEMO/${new Date().getFullYear()}/012
 
 ---
 
@@ -604,14 +604,14 @@ Director, RSIM`;
 
   // Default Letterhead
   return `# REPUBLIC OF GHANA
-MINISTRY OF COMMUNICATIONS AND DIGITALISATION
+MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS
 DIRECTORATE OF RESEARCH, STATISTICS & INFORMATION MANAGEMENT (RSIM)
 
 P.O. Box M.38, Ministries, Accra - Ghana
 Digital Address: GA-107-5555 | Tel: +233 (0) 302 685 601
-Email: rsim@mocd.gov.gh | Website: www.mocd.gov.gh
+Email: rsim@mocdti.gov.gh | Website: www.mocdti.gov.gh
 
-Our Ref: MoCD/RSIM/CORR/${new Date().getFullYear()}/
+Our Ref: MoCDTI/RSIM/CORR/${new Date().getFullYear()}/
 Your Ref: 
 Date: ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
 
@@ -623,7 +623,7 @@ Dear Sir/Madam,
 
 ## OFFICIAL CORRESPONDENCE: STATUTORY COMPLIANCE AND DIGITAL DATA REPORTING
 
-1. I have the honour to refer to the statutory reporting framework established under the Ministry of Communications and Digitalisation.
+1. I have the honour to refer to the statutory reporting framework established under the Ministry of Communications, Digital Technology and Innovations (MoCDTI).
 
 2. In accordance with Section 4 of the Civil Service Guidelines and the operational mandate of the Directorate of Research, Statistics and Information Management (RSIM), all sector institutions are required to submit their quarterly returns.
 
@@ -635,7 +635,7 @@ Yours faithfully,
 
 _______________________________
 Director, RSIM
-for: MINISTER FOR COMMUNICATIONS AND DIGITALISATION`;
+for: MINISTER FOR COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS`;
 }
 
 /**
@@ -648,7 +648,7 @@ export function connectDemoGoogleDrive(): void {
   sessionStorage.setItem(
     GOOGLE_USER_CACHE_KEY,
     JSON.stringify({
-      email: 'rsim.directorate@mocd.gov.gh',
+      email: 'rsim.directorate@mocdti.gov.gh',
       displayName: 'RSIM Directorate (Demo Sample Files)',
       isDemo: true,
     })
@@ -666,8 +666,8 @@ export function connectDemoOneDrive(): void {
   sessionStorage.setItem(
     ONEDRIVE_USER_KEY,
     JSON.stringify({
-      email: 'directorate.admin@mocd.gov.gh',
-      displayName: 'Ministry of Communications (Demo Sample Files)',
+      email: 'directorate.admin@mocdti.gov.gh',
+      displayName: 'Ministry of Communications, Digital Technology and Innovations (MoCDTI) (Demo Sample Files)',
       isDemo: true,
     })
   );
@@ -1669,7 +1669,7 @@ export async function syncAndLearnTemplateFromOneDrive(
     fields: analysis.fields,
     learnedKnowledge: {
       tone: analysis.toneProfile.formality,
-      referenceFormat: analysis.documentType === 'Letter' ? 'MoCD/RSIM/2026/OD' : undefined,
+      referenceFormat: analysis.documentType === 'Letter' ? 'MoCDTI/RSIM/2026/OD' : undefined,
       keySections: templateSpec ? templateSpec.sections.map((s) => s.title) : analysis.fields,
       learnedAt: new Date().toISOString(),
     },

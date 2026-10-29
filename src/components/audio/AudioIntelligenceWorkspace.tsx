@@ -407,7 +407,7 @@ Director (Dr. Joseph E. Adjei) [00:15:40]: Excellent. It is decided that all sec
     // 1. Meeting Minutes
     if (selectedOutputs.minutes) {
       const content = `# OFFICIAL MINUTES OF MEETING
-## MINISTRY OF COMMUNICATIONS • RSIM DIRECTORATE
+## MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS • RSIM DIRECTORATE
 
 **SESSION**: ${activeMeeting.title.toUpperCase()}
 **DATE**: ${activeMeeting.date} | **TIME**: ${activeMeeting.time} | **VENUE**: ${activeMeeting.venue}
@@ -444,7 +444,7 @@ The session was formally adjourned with a directive to circulate draft minutes f
         title: `Official Minutes: ${activeMeeting.title}`,
         type: 'Meeting Minutes',
         category: 'Meetings',
-        referenceNumber: `MoC/RSIM/MIN/${new Date().getFullYear()}/${Math.floor(100 + Math.random() * 900)}`,
+        referenceNumber: `MoCDTI/RSIM/MIN/${new Date().getFullYear()}/${Math.floor(100 + Math.random() * 900)}`,
         content,
         author: storage.getUser().name,
         sourceMeetingId: activeMeeting.id,
@@ -463,9 +463,9 @@ The session was formally adjourned with a directive to circulate draft minutes f
     // 2. Follow-up Memo
     if (selectedOutputs.memo) {
       const content = `MEMORANDUM
-MINISTRY OF COMMUNICATIONS | RSIM DIRECTORATE
+MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS | RSIM DIRECTORATE
 
-REF NO:    MoC/RSIM/MEMO/${new Date().getFullYear()}/${Math.floor(100 + Math.random() * 900)}
+REF NO:    MoCDTI/RSIM/MEMO/${new Date().getFullYear()}/${Math.floor(100 + Math.random() * 900)}
 TO:        Chief Director
 THROUGH:   Director, RSIM
 FROM:      ${storage.getUser().name}
@@ -496,7 +496,7 @@ RSIM Directorate`;
         title: `Internal Memo: Outcomes of ${activeMeeting.title}`,
         type: 'Internal Memo',
         category: 'Memos',
-        referenceNumber: `MoC/RSIM/MEMO/${new Date().getFullYear()}/${Math.floor(100 + Math.random() * 900)}`,
+        referenceNumber: `MoCDTI/RSIM/MEMO/${new Date().getFullYear()}/${Math.floor(100 + Math.random() * 900)}`,
         recipient: 'Chief Director',
         sender: 'Director, RSIM',
         content,
@@ -520,7 +520,7 @@ RSIM Directorate`;
 ## ${activeMeeting.title.toUpperCase()}
 **DIRECTORATE OF RESEARCH, STATISTICS AND INFORMATION MANAGEMENT (RSIM)**
 
-**Date**: ${activeMeeting.date} | **Reference**: MoC/RSIM/REP/${new Date().getFullYear()}/${Math.floor(100 + Math.random() * 900)}
+**Date**: ${activeMeeting.date} | **Reference**: MoCDTI/RSIM/REP/${new Date().getFullYear()}/${Math.floor(100 + Math.random() * 900)}
 
 ---
 
@@ -550,7 +550,7 @@ ${analysis.actionItems.map((a) => `- **${a.task}** | Lead: ${a.responsiblePerson
         title: `Technical Report: ${activeMeeting.title}`,
         type: 'Meeting Report',
         category: 'Reports',
-        referenceNumber: `MoC/RSIM/REP/${new Date().getFullYear()}/${Math.floor(100 + Math.random() * 900)}`,
+        referenceNumber: `MoCDTI/RSIM/REP/${new Date().getFullYear()}/${Math.floor(100 + Math.random() * 900)}`,
         content,
         author: storage.getUser().name,
         sourceMeetingId: activeMeeting.id,

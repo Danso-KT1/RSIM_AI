@@ -56,7 +56,7 @@ export const WordDocumentViewer: React.FC<WordDocumentViewerProps> = ({
   referenceNumber,
   date,
   author,
-  department = 'MINISTRY OF COMMUNICATIONS & DIGITALISATION',
+  department = 'MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS',
   type = 'Official Document',
   searchQuery = '',
   formatting,

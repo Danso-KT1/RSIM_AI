@@ -11,7 +11,7 @@ export const DEFAULT_TEMPLATES: UserTemplate[] = [
     source: 'built_in',
     summary: 'Official Civil Service standard meeting minutes template with attendance, agenda, detailed proceedings, resolutions, and action matrix.',
     content: `# REPUBLIC OF GHANA
-MINISTRY OF COMMUNICATIONS AND DIGITALISATION
+MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS
 DIRECTORATE OF RESEARCH, STATISTICS AND INFORMATION MANAGEMENT (RSIM)
 
 ## OFFICIAL MINUTES OF PROCEEDINGS
@@ -72,12 +72,12 @@ There being no further business, the meeting was adjourned at 12:45 PM following
     source: 'built_in',
     summary: 'Technical committee minutes layout focused on systems architecture, data interoperability, and project milestone approvals.',
     content: `# REPUBLIC OF GHANA
-MINISTRY OF COMMUNICATIONS AND DIGITALISATION
+MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS
 
 ## TECHNICAL WORKING GROUP (TWG) MEETING MINUTES
 
 **Committee:** National Data Interoperability & Digital Architecture TWG  
-**Session Ref:** MoCD/RSIM/TWG/{YEAR}/03  
+**Session Ref:** MoCDTI/RSIM/TWG/{YEAR}/03  
 **Date:** {DATE}  
 **Convenor:** RSIM Directorate  
 
@@ -157,13 +157,13 @@ MINISTRY OF COMMUNICATIONS AND DIGITALISATION
       formatting: { font: 'Times New Roman', fontSize: '12pt' },
     },
     content: `# REPUBLIC OF GHANA
-MINISTRY OF COMMUNICATIONS AND DIGITALISATION
+MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS
 RESEARCH, STATISTICS AND INFORMATION MANAGEMENT (RSIM) DIRECTORATE
 
 STAKEHOLDER ENGAGEMENT REPORT: THE DATA HARMONISATION MEETING 2026
 
 1.0 EXECUTIVE SUMMARY & ENGAGEMENT OVERVIEW
-The Ministry of Communications and Digitalisation, through the Directorate of Research, Statistics and Information Management (RSIM), convened a high-level Stakeholder Engagement Session on National Data Harmonisation and Inter-Agency Interoperability. The overarching objective of the session was to foster institutional synergy, evaluate ongoing data integration frameworks, address systemic data silos across public regulatory bodies, and establish enforceable data exchange protocols across the sector.
+The Ministry of Communications, Digital Technology and Innovations (MoCDTI), through the Directorate of Research, Statistics and Information Management (RSIM), convened a high-level Stakeholder Engagement Session on National Data Harmonisation and Inter-Agency Interoperability. The overarching objective of the session was to foster institutional synergy, evaluate ongoing data integration frameworks, address systemic data silos across public regulatory bodies, and establish enforceable data exchange protocols across the sector.
 
 2.0 THEMATIC DELIBERATIONS & REGULATORY POSITIONS
 2.1 Overview of Strategic Interventions and Agency Presentations
@@ -180,7 +180,7 @@ Following consultative deliberations, stakeholders unanimously resolved on the f
 
 ____________________________________________
 Director, RSIM Directorate
-Ministry of Communications and Digitalisation`,
+Ministry of Communications, Digital Technology and Innovations (MoCDTI)`,
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
   },
@@ -195,12 +195,12 @@ Ministry of Communications and Digitalisation`,
     source: 'built_in',
     summary: 'High-level civil service institutional report with executive summary, statutory priorities, methodology, empirical findings, and policy recommendations.',
     content: `# REPUBLIC OF GHANA
-MINISTRY OF COMMUNICATIONS AND DIGITALISATION
+MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS
 DIRECTORATE OF RESEARCH, STATISTICS & INFORMATION MANAGEMENT (RSIM)
 
 ## INSTITUTIONAL PERFORMANCE & POLICY EVALUATION REPORT
 
-**Document Ref:** MoCD/RSIM/REP/{YEAR}/01  
+**Document Ref:** MoCDTI/RSIM/REP/{YEAR}/01  
 **Reporting Period:** Comprehensive Strategic Review  
 **Authoring Unit:** Directorate of Research, Statistics & Information Management  
 **Submitted To:** The Chief Director & Sector Minister  
@@ -241,7 +241,7 @@ It is respectfully recommended that leadership:
 
 **Respectfully Submitted By:**  
 Director, RSIM Directorate  
-Ministry of Communications and Digitalisation`,
+Ministry of Communications, Digital Technology and Innovations (MoCDTI)`,
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
   },
@@ -256,12 +256,12 @@ Ministry of Communications and Digitalisation`,
     source: 'built_in',
     summary: 'Executive technical inspection report template detailing field observations, facility conditions, hardware/software status, and corrective action roadmaps.',
     content: `# REPUBLIC OF GHANA
-MINISTRY OF COMMUNICATIONS AND DIGITALISATION
+MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS
 
 ## TECHNICAL MONITORING & FIELD INSPECTION REPORT
 
 **Inspection Mission:** Regional Digital Centers & Infrastructure Verification  
-**Mission Ref:** MoCD/RSIM/INSP/{YEAR}/04  
+**Mission Ref:** MoCDTI/RSIM/INSP/{YEAR}/04  
 **Date of Mission:** {DATE}  
 **Lead Inspector:** Senior Technical Officer, RSIM Directorate  
 
@@ -305,14 +305,14 @@ The technical monitoring mission was conducted pursuant to ministerial oversight
     source: 'built_in',
     summary: 'Official Civil Service correspondence with institutional letterhead, coat of arms decorum, reference numbering, formal salutation, and signature block.',
     content: `# REPUBLIC OF GHANA
-MINISTRY OF COMMUNICATIONS AND DIGITALISATION
+MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS
 DIRECTORATE OF RESEARCH, STATISTICS & INFORMATION MANAGEMENT (RSIM)
 
 P.O. Box M.38, Ministries, Accra - Ghana  
 Digital Address: GA-107-5555 | Tel: +233 (0) 302 685 601  
-Email: rsim@mocd.gov.gh | Website: www.mocd.gov.gh  
+Email: rsim@mocdti.gov.gh | Website: www.mocdti.gov.gh  
 
-**Our Ref:** MoCD/RSIM/CORR/{YEAR}/042  
+**Our Ref:** MoCDTI/RSIM/CORR/{YEAR}/042  
 **Your Ref:** {RECIPIENT_REF}  
 **Date:** {DATE}  
 
@@ -324,7 +324,7 @@ Dear Sir/Madam,
 
 ## OFFICIAL CORRESPONDENCE: {SUBJECT}
 
-1. I have the honour to refer to the statutory framework governing sector collaboration under the Ministry of Communications and Digitalisation.
+1. I have the honour to refer to the statutory framework governing sector collaboration under the Ministry of Communications, Digital Technology and Innovations (MoCDTI).
 
 2. In accordance with the operational mandate of the Directorate of Research, Statistics and Information Management (RSIM), I write to formally convey the following directives and resolutions for your attention and institutional action:
    - {KEY_POINTS}
@@ -337,7 +337,7 @@ Yours faithfully,
 
 _______________________________  
 **Director, RSIM Directorate**  
-for: **HON. MINISTER FOR COMMUNICATIONS AND DIGITALISATION**`,
+for: **HON. MINISTER FOR COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS**`,
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
   },
@@ -352,7 +352,7 @@ for: **HON. MINISTER FOR COMMUNICATIONS AND DIGITALISATION**`,
     source: 'built_in',
     summary: 'Standard Civil Service Internal Memorandum format with To, Through, From, Date, Subject, numbered paragraphs, and executive prayer.',
     content: `# REPUBLIC OF GHANA
-MINISTRY OF COMMUNICATIONS AND DIGITALISATION
+MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS
 
 ## INTERNAL MEMORANDUM
 
@@ -360,7 +360,7 @@ MINISTRY OF COMMUNICATIONS AND DIGITALISATION
 **THROUGH:** Director, RSIM Directorate  
 **FROM:** Assistant Director, Research & Statistics  
 **DATE:** {DATE}  
-**REF. NO:** MoCD/RSIM/MEMO/{YEAR}/028  
+**REF. NO:** MoCDTI/RSIM/MEMO/{YEAR}/028  
 
 **SUBJECT:** {SUBJECT}  
 ────────────────────────────────────────────────────────────────────────────────

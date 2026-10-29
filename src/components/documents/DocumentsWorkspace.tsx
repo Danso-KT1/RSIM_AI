@@ -1315,7 +1315,7 @@ Question: ${q}`;
               referenceNumber={activeDoc.referenceNumber}
               date={activeDoc.createdAt ? new Date(activeDoc.createdAt).toLocaleDateString() : undefined}
               author={authorDisplay}
-              department="MINISTRY OF COMMUNICATIONS & DIGITALISATION"
+              department="MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS"
               type={activeDoc.type}
               searchQuery={searchQuery}
               onContentChange={(newContent) => setEditorContent(newContent)}

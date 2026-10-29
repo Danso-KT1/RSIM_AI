@@ -98,8 +98,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = memo(({
                   Gov
                 </span>
               </div>
-              <p className="text-[11px] font-medium text-slate-400">
-                Ministry of Communications
+              <p className="text-[11px] font-medium text-slate-400 truncate max-w-[170px]" title="Ministry of Communications, Digital Technology and Innovations (MoCDTI)">
+                Ministry of Communications, Digital Technology and Innovations (MoCDTI)
               </p>
             </div>
           </div>

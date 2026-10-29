@@ -634,7 +634,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <h3 className="text-sm font-bold text-slate-900">RSIM AI Institutional Directorate Workstation</h3>
-          <p className="text-xs text-slate-500">Research, Statistics & Information Management Directorate · Ministry of Communications and Digitalisation</p>
+          <p className="text-xs text-slate-500">Research, Statistics & Information Management Directorate · Ministry of Communications, Digital Technology and Innovations (MoCDTI)</p>
           <p className="text-xs text-slate-400 mt-1">Copyright © 2026 RSIM AI · All Rights Reserved</p>
         </div>
         <div className="text-center sm:text-right shrink-0">

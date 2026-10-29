@@ -127,7 +127,7 @@ export const LetterStudio: React.FC<LetterStudioProps> = ({ initialContent, onDo
   const quickLetterPrompts = [
     {
       title: 'Invitation to Minister',
-      text: 'Write an official letter to the Hon. Minister for Communications & Digitalisation inviting her to deliver the keynote address at the 2026 National Data Governance Summit in Accra on October 24th.',
+      text: 'Write an official letter to the Hon. Minister for Communications, Digital Technology and Innovations inviting her to deliver the keynote address at the 2026 National Data Governance Summit in Accra on October 24th.',
     },
     {
       title: 'Workshop Concurrence',
@@ -474,7 +474,7 @@ export const LetterStudio: React.FC<LetterStudioProps> = ({ initialContent, onDo
           referenceNumber={extractedMeta.referenceNumber || 'RSIM/LET/2026/014'}
           date={new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
           author={storage.getUser().name || 'Director, RSIM'}
-          department="MINISTRY OF COMMUNICATIONS & DIGITALISATION"
+          department="MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS"
           type="Official Letter"
           formatting={activeTemplate?.learnedKnowledge?.formatting || (activeTemplate?.templateSpec ? { font: activeTemplate.templateSpec.detectedFont, fontSize: activeTemplate.templateSpec.detectedFontSize } : undefined)}
           onContentChange={(newContent) => setGeneratedLetter(newContent)}

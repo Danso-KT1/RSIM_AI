@@ -191,6 +191,28 @@ export function detectDocumentFormatIntent(
   return { detectedType: 'Report', confidence: 'fallback', source: 'studio_context', description: 'Default institutional standard.' };
 }
 
+// Global sanitizer to strictly enforce official MoCDTI naming across all AI outputs
+export function sanitizeMinistryNaming(text: string): string {
+  if (!text || typeof text !== 'string') return text;
+  return text
+    // Exact all-caps letterhead and ministerial titles first
+    .replace(/HON\.?\s*MINISTER FOR COMMUNICATIONS AND DIGITALISATION/g, 'HON. MINISTER FOR COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS')
+    .replace(/MINISTER (?:FOR|OF) COMMUNICATIONS & DIGITALISATION/g, 'MINISTER FOR COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS')
+    .replace(/MINISTRY OF COMMUNICATIONS AND DIGITALISATION/g, 'MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS')
+    .replace(/MINISTRY OF COMMUNICATIONS & DIGITALISATION/g, 'MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS')
+    // Specific full names with parenthesis
+    .replace(/Ministry of Communications and Digitalisation\s*\((?:Ghana|MoCD|MoCDTI)\)/gi, 'Ministry of Communications, Digital Technology and Innovations (MoCDTI)')
+    .replace(/Ministry of Communication,\s*Digital Technology[,\s]+and Innovations\s*\((?:Ghana|MoCD|MoCDTI)\)/gi, 'Ministry of Communications, Digital Technology and Innovations (MoCDTI)')
+    .replace(/Ministry of Communications and Digitalisation/gi, 'Ministry of Communications, Digital Technology and Innovations (MoCDTI)')
+    .replace(/Ministry of Communications & Digitalisation/gi, 'Ministry of Communications, Digital Technology and Innovations (MoCDTI)')
+    .replace(/Minister (?:for|of) Communications and Digitalisation/gi, 'Minister for Communications, Digital Technology and Innovations')
+    .replace(/Minister (?:for|of) Communications & Digitalisation/gi, 'Minister for Communications, Digital Technology and Innovations')
+    .replace(/\bMoCD\/RSIM\b/g, 'MoCDTI/RSIM')
+    .replace(/\bMoCD\b/g, 'MoCDTI')
+    // Clean up any double acronyms if they occurred e.g. (MoCDTI) (MoCDTI)
+    .replace(/\(MoCDTI\)\s*\((?:MoCDTI|MoCD)\)/gi, '(MoCDTI)');
+}
+
 export const aiService = {
   // Check if server-side Gemini AI is available
   async checkHealth(): Promise<{ ok: boolean; hasAI: boolean; cascadeStatus?: any }> {
@@ -597,7 +619,7 @@ export const aiService = {
 
         if (accumulatedText.trim()) {
           return {
-            text: accumulatedText,
+            text: sanitizeMinistryNaming(accumulatedText),
             groundingSources: streamSources.length > 0 ? streamSources : undefined,
             webSearchQueries: streamQueries.length > 0 ? streamQueries : undefined,
             isGrounded,
@@ -653,7 +675,7 @@ export const aiService = {
       });
       if (res.ok && res.data?.text) {
         return {
-          text: res.data.text,
+          text: sanitizeMinistryNaming(res.data.text),
           groundingSources: res.data.sources,
           webSearchQueries: res.data.webSearchQueries,
           isGrounded: res.data.isGrounded,
@@ -669,16 +691,16 @@ export const aiService = {
     const isRsim = /\brsim\b/i.test(prompt) || /research,\s*statistics/i.test(prompt) || /research\s+statistics/i.test(prompt);
     const localText = this.localRSIMEngine(prompt, mode, systemInstruction);
     const rsimSources = isRsim ? [
-      { uri: 'https://moc.gov.gh/director-rsim', title: 'Director, RSIM – Ministry of Communications and Digitalisation' },
+      { uri: 'https://moc.gov.gh/director-rsim', title: 'Director, RSIM – Ministry of Communications, Digital Technology and Innovations (MoCDTI)' },
       { uri: 'https://ohcs.gov.gh', title: 'Office of the Head of Civil Service (OHCS) — Directorate Mandates' },
       { uri: 'https://nca.org.gh', title: 'National Communications Authority (NCA) — Sector Statistics' },
       { uri: 'https://www.mint.gov.gh', title: 'Ministry of the Interior — Research, Statistics & Information Management' },
     ] : undefined;
 
     return {
-      text: localText,
+      text: sanitizeMinistryNaming(localText),
       groundingSources: rsimSources,
-      webSearchQueries: isRsim ? ['RSIM meaning at the Ministry of Communications Ghana'] : undefined,
+      webSearchQueries: isRsim ? ['RSIM meaning at the Ministry of Communications, Digital Technology and Innovations'] : undefined,
       isGrounded: isRsim,
       modelUsed: 'RSIM AI Engine (Verified Grounded)',
       sourceType: 'local-institutional-engine',
@@ -1608,7 +1630,7 @@ DOCUMENT DIRECTIVES (INTERNAL MEMORANDUM):
 
         // Construct System Instruction & Strict Anti-Hallucination Guidelines
         const isGoogleDriveTemplate = matchedTemplate?.source === 'google_drive' || Boolean(matchedTemplate?.driveSource);
-        const systemInstruction = `You are a senior institutional administrative officer and official rapporteur for the Ministry of Communications and Digitalisation, Ghana (RSIM Directorate).
+        const systemInstruction = `You are a senior institutional administrative officer and official rapporteur for the Ministry of Communications, Digital Technology and Innovations (MoCDTI), Ghana (RSIM Directorate).
 Your task is to draft an official, formal, institutional ${detectedType} of the highest civil service standard.
 
 CRITICAL MANDATORY DIRECTIVES:
@@ -1723,7 +1745,7 @@ ${instruction || 'Draft the complete institutional document from the provided so
 
 User Details:
 Author: ${userMeta?.name || 'Secretariat, RSIM'}
-Department: ${userMeta?.department || 'Ministry of Communications and Digitalisation'}
+Department: ${userMeta?.department || 'Ministry of Communications, Digital Technology and Innovations (MoCDTI)'}
 Role: ${userMeta?.role || 'Lead Officer'}
 
 ${formatGuidance}
@@ -1866,13 +1888,13 @@ ${finalRules}`;
 
     let fullDraft = '';
     if (detectedType === 'Letter') {
-      fullDraft = `Ref: RSIM/LET/2026/019\nDate: ${dateFormatted}\n\nThe Chief Director\nMinistry of Communications & Digitalisation\nAccra, Ghana\n\nDear Sir,\n\nRE: ${cleanSub}\n\n1. I write with reference to institutional directives to formally bring to your attention: ${instruction}.\n\n2. The Directorate has reviewed all operational requisites and respectfully requests facilitating action in accordance with public governance standards.\n\n3. We remain at your disposal for any further clarifications or technical briefings.\n\nYours faithfully,\n\n_______________________\n${userMeta?.name || 'Director, RSIM'}\nHead of Directorate`;
+      fullDraft = `Ref: RSIM/LET/2026/019\nDate: ${dateFormatted}\n\nThe Chief Director\nMinistry of Communications, Digital Technology and Innovations (MoCDTI)\nAccra, Ghana\n\nDear Sir,\n\nRE: ${cleanSub}\n\n1. I write with reference to institutional directives to formally bring to your attention: ${instruction}.\n\n2. The Directorate has reviewed all operational requisites and respectfully requests facilitating action in accordance with public governance standards.\n\n3. We remain at your disposal for any further clarifications or technical briefings.\n\nYours faithfully,\n\n_______________________\n${userMeta?.name || 'Director, RSIM'}\nHead of Directorate`;
     } else if (detectedType === 'Memo') {
       fullDraft = `MEMORANDUM\n\nTO:         The Chief Director\nTHROUGH:    Director, Finance & Administration\nFROM:       ${userMeta?.name || 'Director, RSIM'}\nDATE:       ${dateFormatted}\nREF. NO:    RSIM/MEMO/2026/08\n\nSUBJECT:    ${cleanSub}\n--------------------------------------------------------------------------------\n\n1.0 PURPOSE\n1.1 The purpose of this memorandum is to respectfully submit for executive consideration and formal directives regarding: ${instruction}.\n\n2.0 BACKGROUND & CURRENT CONTEXT\n2.1 In furtherance of the Directorate's statutory objectives, immediate administrative and technical interventions are required.\n\n3.0 RECOMMENDATIONS\n3.1 It is respectfully recommended that leadership grants formal approval and directives as outlined above.\n\n\n_______________________\n${userMeta?.name || 'Director, RSIM'}`;
     } else if (detectedType === 'Minutes') {
       fullDraft = `MINUTES OF PROCEEDINGS\n\nMEETING:    ${cleanSub || 'Technical Working Group & Inter-Agency Coordination'}\nDATE:       ${dateFormatted}\nVENUE:      Ministry Boardroom / Virtual Session\nCHAIR:      ${userMeta?.name || 'Director, RSIM'}\n\n1.0 ATTENDANCE & APOLOGIES\nPresent:\n- Director, RSIM (Chairperson)\n- Lead Research & Policy Planning Officer\n- Head of Statistics, NCA Representative\n- Secretariat / Rapporteur\nApologies: [Not stated in transcript]\n\n2.0 DELIBERATIONS & AGENDA ITEMS\n2.1 Review of Agenda & Objectives: ${instruction}\n2.2 Detailed Discussions: Deliberations focused on key deliverables, technical synchronization, and institutional alignment.\n\n3.0 DECISIONS & RESOLUTIONS\n3.1 The meeting resolved to adopt the submitted technical roadmap subject to statutory clearances.\n3.2 Next milestone deliverables scheduled within a two-week reporting window.\n\n4.0 ACTION ITEMS TABLE\n--------------------------------------------------------------------------------\nTask / Action Item                    | Responsible Person  | Deadline    | Priority\n--------------------------------------------------------------------------------\nFinalize interoperability guidelines  | Research Lead       | 14 Days     | High\nCirculate draft policy note           | Secretariat, RSIM   | 7 Days      | Medium\n--------------------------------------------------------------------------------\n\n5.0 NEXT MEETING & ADJOURNMENT\nMeeting concluded at 12:45 PM. Next session scheduled for the subsequent fortnightly review.\n\n\nPrepared By: __________________________    Confirmed By: __________________________\n             Secretariat, RSIM                           Chairperson`;
     } else {
-      fullDraft = `DIRECTORATE REPORT: ${cleanSub || 'Performance & Operational Review'}\nReporting Period: Q3 2026\nPrepared By: ${userMeta?.name || 'Lead Planning Officer'}\nDate: ${dateFormatted}\n\n1.0 EXECUTIVE SUMMARY\nThis report provides a formal synthesis of operations, technical implementation milestones, and performance parameters regarding: ${instruction}.\n\n2.0 BACKGROUND & STATUTORY CONTEXT\nIn pursuance of the Ministry of Communications and Digitalisation's core mandate, the Directorate undertakes ongoing operational monitoring and data harmonization.\n\n3.0 KEY FINDINGS & PROGRESS METRICS\n- Baseline parameters confirmed across departmental units.\n- Resource allocation and delivery milestones verified against performance metrics.\n\n4.0 STRATEGIC RECOMMENDATIONS & CONCLUSION\nAdoption of the proposed framework is recommended for executive endorsement and ministerial facilitation.\n\n\n_______________________\n${userMeta?.name || 'Director, RSIM'}\nHead of Directorate`;
+      fullDraft = `DIRECTORATE REPORT: ${cleanSub || 'Performance & Operational Review'}\nReporting Period: Q3 2026\nPrepared By: ${userMeta?.name || 'Lead Planning Officer'}\nDate: ${dateFormatted}\n\n1.0 EXECUTIVE SUMMARY\nThis report provides a formal synthesis of operations, technical implementation milestones, and performance parameters regarding: ${instruction}.\n\n2.0 BACKGROUND & STATUTORY CONTEXT\nIn pursuance of the Ministry of Communications, Digital Technology and Innovations' (MoCDTI) core mandate, the Directorate undertakes ongoing operational monitoring and data harmonization.\n\n3.0 KEY FINDINGS & PROGRESS METRICS\n- Baseline parameters confirmed across departmental units.\n- Resource allocation and delivery milestones verified against performance metrics.\n\n4.0 STRATEGIC RECOMMENDATIONS & CONCLUSION\nAdoption of the proposed framework is recommended for executive endorsement and ministerial facilitation.\n\n\n_______________________\n${userMeta?.name || 'Director, RSIM'}\nHead of Directorate`;
     }
 
     return {
@@ -1937,7 +1959,7 @@ ${finalRules}`;
       try {
         metadata.onProgress?.(`Refining draft with ${preferredModel}...`);
 
-        const systemInstruction = `You are a senior institutional administrative officer and expert editor for the Ministry of Communications and Digitalisation, Ghana (RSIM Directorate).
+        const systemInstruction = `You are a senior institutional administrative officer and expert editor for the Ministry of Communications, Digital Technology and Innovations (MoCDTI), Ghana (RSIM Directorate).
 The user has provided an existing official ${docType} draft and a follow-up prompt to modify, refine, expand, or adjust it to suit their specific requirements.
 
 CRITICAL REVISION & EDITING RULES:
@@ -2581,7 +2603,7 @@ Apply this edit instruction thoroughly to produce the complete, updated revised 
     recommendations: string[];
   } {
     const commonThemes = [
-      `Both documents focus on institutional operations within the RSIM Directorate and Ministry of Communications.`,
+      `Both documents focus on institutional operations within the RSIM Directorate and Ministry of Communications, Digital Technology and Innovations (MoCDTI).`,
       `Shared emphasis on data accuracy, inter-agency reporting compliance, and executive accountability.`,
     ];
 
@@ -2624,7 +2646,7 @@ Apply this edit instruction thoroughly to produce the complete, updated revised 
     ) {
       return `# RSIM Directorate AI Assistant: Capabilities & Services
 
-Hello! I am your **Directorate AI Conversational Assistant**, engineered specifically for the **Ministry of Communications and Digitalisation (MoCD)** and the **Directorate of Research, Statistics & Information Management (RSIM)**.
+Hello! I am your **Directorate AI Conversational Assistant**, engineered specifically for the **Ministry of Communications, Digital Technology and Innovations (MoCDTI)** and the **Directorate of Research, Statistics & Information Management (RSIM)**.
 
 I combine multi-model artificial intelligence, civil service document expertise, institutional directive grounding, and speech processing to streamline public administration workflows.
 
@@ -2633,7 +2655,7 @@ I combine multi-model artificial intelligence, civil service document expertise,
 ## 🛠️ Core Capabilities
 
 ### 1. ✍️ Executive Civil Service Document Drafting
-* **Official Memorandums**: Format internal memos following the strict **MoCD/RSIM** structure (*TO, THROUGH, FROM, PURPOSE, BACKGROUND, OBSERVATIONS, PRAYER*).
+* **Official Memorandums**: Format internal memos following the strict **MoCDTI/RSIM** structure (*TO, THROUGH, FROM, PURPOSE, BACKGROUND, OBSERVATIONS, PRAYER*).
 * **Ministerial Correspondence**: Draft external letters to regulatory bodies (NCA, NITA, GIFEC, Cyber Security Authority) with official letterheads and civil service salutations.
 * **Meeting Minutes**: Synthesize unstructured discussion notes or audio transcripts into executive minutes with itemized action items, responsible officers, and target dates.
 * **Strategic & Policy Reports**: Formulate comprehensive policy reviews, briefing notes, Cabinet submissions, and digital readiness assessments.
@@ -2743,7 +2765,7 @@ ${recent.analysis.issuesAndRisks.map((r) => `- ⚠️ ${r}`).join('\n')}
       lower.includes('research, statistics and information management') ||
       lower.includes('research statistics and information management')
     ) {
-      return `According to official records of Ghana's **Ministry of Communications and Digitalisation (MoCD)** (formerly Ministry of Communication, Digital Technology and Innovations), **RSIM** stands for **Research, Statistics, and Information Management** [1]. The current Director is **Ms. Barbara Phyllis Barnes** [1].
+      return `According to official records of Ghana's **Ministry of Communications, Digital Technology and Innovations (MoCDTI)**, **RSIM** stands for **Research, Statistics, and Information Management** [1]. The current Director is **Ms. Barbara Phyllis Barnes** [1].
 
 ### 1. What is the RSIM Directorate?
 The **Research, Statistics, and Information Management (RSIM)** Directorate is responsible for conducting research, analysing data, managing information, and supporting evidence-based policymaking within the Ministry [1].
@@ -2786,9 +2808,9 @@ ${mandate.content}
     if (mode === 'Memo Writer' || lower.includes('draft memo') || lower.includes('write memo')) {
       const topic = prompt.slice(0, 80).replace(/draft a memo (about|on|for)/i, '').trim() || 'Directorate Policy Review and Implementation Directives';
       return `MEMORANDUM
-MINISTRY OF COMMUNICATIONS | RSIM DIRECTORATE
+MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS | RSIM DIRECTORATE
 
-REF NO:    MoC/RSIM/MEMO/${new Date().getFullYear()}/${Math.floor(100 + Math.random() * 900)}
+REF NO:    MoCDTI/RSIM/MEMO/${new Date().getFullYear()}/${Math.floor(100 + Math.random() * 900)}
 TO:        Chief Director
 THROUGH:   Director, RSIM
 FROM:      Directorate Officer
@@ -2824,10 +2846,10 @@ RSIM Directorate`;
       const subject = prompt.slice(0, 80).replace(/draft a letter (to|about|for)/i, '').trim() || 'Official Notice and Request for Directorate Information';
 
       return `REPUBLIC OF GHANA
-MINISTRY OF COMMUNICATIONS
+MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS
 P.O. Box M38, Ministries Post Office, Accra
 
-Our Ref: MoC/RSIM/CORR/${new Date().getFullYear()}/${Math.floor(10 + Math.random() * 90)}
+Our Ref: MoCDTI/RSIM/CORR/${new Date().getFullYear()}/${Math.floor(10 + Math.random() * 90)}
 Date:    ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
 
 ${recipient}
@@ -2837,7 +2859,7 @@ Dear Sir/Madam,
 
 RE: ${subject.toUpperCase()}
 
-1. I have the honour to refer to the ongoing collaborative engagements between the Ministry of Communications and your esteemed organization regarding national digital infrastructure and data harmonization.
+1. I have the honour to refer to the ongoing collaborative engagements between the Ministry of Communications, Digital Technology and Innovations (MoCDTI) and your esteemed organization regarding national digital infrastructure and data harmonization.
 
 2. In furtherance of the statutory functions of the Research, Statistics and Information Management (RSIM) Directorate, you are kindly requested to provide relevant statistical data returns and documentation by the scheduled deadline.
 
@@ -2850,7 +2872,7 @@ Yours faithfully,
 ___________________________________
 Director, RSIM
 For: CHIEF DIRECTOR
-MINISTRY OF COMMUNICATIONS`;
+MINISTRY OF COMMUNICATIONS, DIGITAL TECHNOLOGY AND INNOVATIONS`;
     }
 
     // 7. Direct knowledge: UN Secretary-General & current facts
@@ -2885,7 +2907,7 @@ In 2025 and 2026, global and regional digital governance has shifted from volunt
 * **African Union Data Policy Framework**: Mandating harmonized cross-border data flows, local cloud sovereignty, and public sector data trust mechanisms across member states.
 
 ## 2. Directorate Implementation Requirements
-For public sector institutions and the Ministry of Communications & Digitalisation, the following standards apply directly:
+For public sector institutions and the Ministry of Communications, Digital Technology and Innovations (MoCDTI), the following standards apply directly:
 
 | Domain | Institutional Mandate | Priority Action |
 | :--- | :--- | :--- |
